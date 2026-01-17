@@ -147,8 +147,9 @@ int main(int argc, char **argv) {
 
   // Benchmark the dgemm
   auto time = benchmark(
-      []() {
-        // Setup function - nothing to do here
+      [&C]() {
+        // Reinitialize result matrix to 0
+        std::fill(C.begin(), C.end(), 0.0);
       },
       [&n, &A, &B, &C]() {
         // Call the core C dgemm function with array data
