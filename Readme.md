@@ -1,9 +1,9 @@
 # Homework 1 README
 
 ## Installation
-- If you have a version of python with numpy and scipy, you can skip this step. Otherwise, you can install Poetry for Python dependency management at https://python-poetry.org/docs/#installation, and then install required Python packages using Poetry:
+- Use pip to install the dependencies, ensure that you have Python 3.12 or greater.
     ```bash
-    poetry install --no-root
+    pip install -r requirements.txt
     ```
 - Ensure you have a C compiler (e.g., `gcc`) installed to compile the benchmarking harness.
 
