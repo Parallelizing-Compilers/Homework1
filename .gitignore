@@ -2,4 +2,5 @@ dgemm-naive
 dgemm-optimized
 input
 output
+plot
 *.o
