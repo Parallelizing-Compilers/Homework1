@@ -131,19 +131,17 @@ For beginners we recommend taking your first steps with `nano`. You can use it o
 
 ```
 student@login-ice-1:~/HW1> module load nano
-student@login-ice-1:~/HW1> nano dgemm-blocked.c
+student@login-ice-1:~/HW1> nano dgemm-optimized.c
 ```
 Use `Ctrl+X` to exit.
 
 For a more complete code editor try _vim_ which is loaded by default:
 ```
-student@login-ice-1:~/HW1> vim dgemm-blocked.c
+student@login-ice-1:~/HW1> vim dgemm-optimized.c
 ```
 Use `Esc` and `:q` to exit. (`:q!` if you want to discard changes). Try out the [interactive vim tutorial](https://www.openvim.com/) to learn more.
 
-If you're more familiar with a graphical environment, many popular IDEs can use the provided `CMakeLists.txt` as a project definition. Refer to the documentation of your particular IDE for help setting this up. Using hosted version control like GitHub makes uploading your changes much easier. If you're in a Windows environment, consider using the Windows Subsystem for Linux (WSL) for development.
-
-
+Using hosted version control like GitHub makes uploading your changes much easier. If you're in a Windows environment, consider using the Windows Subsystem for Linux (WSL) for development.
 
 ## Standard Processor On PACE
 
@@ -176,7 +174,7 @@ So, the theoretical peak is:
 ### Optimizing
 
 Now, it's time to optimize!  A few optimizations you might consider adding:
-1. Perform blocking. The dgemm-blocked.c already gets you started with this, although you'll need to tune block sizes.
+1. Perform blocking. The dgemm-optimized.c already gets you started with this, although you'll need to tune block sizes.
 2. Write a register-blocked kernel, either by writing an inner-level fixed-size matrix multiply and hoping (and [maybe checking](https://godbolt.org/)) that the compiler inlines it, writing [AVX intrinsics](https://software.intel.com/sites/landingpage/IntrinsicsGuide/), or even writing inline assembly instructions.
 3. Add manual prefetching.
 
@@ -190,7 +188,7 @@ You may, of course, proceed however you wish.  We recommend you look through the
     * explanations of the performance features you observed (including what didn't work)
 * There are other formulations of matmul (e.g., [Strassen](http://en.wikipedia.org/wiki/Strassen_algorithm)) that are mathematically equivalent, but perform asymptotically fewer computations - we will not grade submissions that do fewer computations than the 2n^3 algorithm. This is actually an optional part of HW1.
 * You must use the GNU C Compiler 12.3 for this assignment. If your code does not compile and run with GCC 12.3, it will not be graded.
-* Besides compiler intrinsic functions and built-ins, your code (`dgemm-blocked.c`) must only call into the C standard library.
+* Besides compiler intrinsic functions and built-ins, your code (`dgemm-optimized.c`) must only call into the C standard library.
 * GNU C provides [many](http://gcc.gnu.org/onlinedocs/gcc/C-Extensions.html) extensions, which include intrinsics for vector (SIMD) instructions and data alignment. (Other compilers may have different interfaces.)
     * To manually vectorize, you should prefer to add compiler intrinsics to your code; avoid using inline assembly, at least at first.
     * The [Compiler Explorer](https://gcc.godbolt.org/z/v2fTDJ) project will be useful for exploring the relationship between your C code and its corresponding assembly. Release mode builds compile with `-O3`.
