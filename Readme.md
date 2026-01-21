@@ -153,6 +153,11 @@ On Pace ICE, we use any Dual Xeon Gold 6226 processor (see all the resources her
 The reference machine is Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz (turbo boost is disabled). The manual is here:https://www.intel.com/content/www/us/en/products/sku/193957/intel-xeon-gold-6226-processor-19-25m-cache-2-70-ghz/specifications.html
 there are two [VPUs](https://cvw.cac.cornell.edu/vector/hardware/vector-processing-unit#:~:text=Vector%20processing%20units%20(VPUs)%20perform%20the%20actual,are%20equipped%20with%20two%20VPUs%20per%20core) per core, each with 512-bit vector width, so 8 double-precision (64-bit) elements can be processed in parallel. Each VPU has FMA units.
 
+You can learn more about the cpu by running the following command on PACE:
+```
+student@login-ice-1:~> lscpu
+```
+
 ## Our Harness
 
 The `benchmark.py` file generates matrices of a number of different sizes and benchmarks the performance. It outputs the performance in [FLOPS](https://en.wikipedia.org/wiki/FLOPS) and in a percentage of theoretical peak attained. Your job is to get your matrix-multiply's performance as close to the theoretical peak as possible.
