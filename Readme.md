@@ -66,7 +66,7 @@ To get started, log in to the PACE login node and clone the assignment.
 ```
 student@local:~> ssh <gatech_username>@login-ice.pace.gatech.edu
 student@login-ice-1:~> cd scratch
-student@login-ice-1:~> git clone [https://github.com/Parallelizing-Compilers/Homework1.git](https://github.com/Parallelizing-Compilers/Homework1.git)
+student@login-ice-1:~> git clone https://github.com/Parallelizing-Compilers/Homework1.git
 student@login-ice-1:~> cd Homework1
 student@login-ice-1:~> ls
 benchmark.cpp  dgemm-naive.c      json.hpp  npy.hpp         Readme.md
@@ -108,7 +108,8 @@ For illustrative purposes, a naive implementation of matrix multiply using three
 
 Command to request an [interactive session](https://gatech.service-now.com/home?id=kb_article_view&sysparm_article=KB0042096#interactive-jobs): [We will be making use of Intel Xeon Gold 6226 processor]
 ```
-salloc -N 1 -n 1 -c <no. of cores> -t <session-time> -C gold6226
+student@login-ice-1:~> salloc -N 1 -n 1 -c <no. of cores> -t <session-time> -C gold6226
+student@atl1-1-02-003-19-2:~> 
 ```
 
 Once the command is granted, your terminal prompt will change (e.g., to [student@atl1-1-02-003-19-2]$). You are now on a compute node.
@@ -164,14 +165,14 @@ One of the easiest ways to implement your homework is to directly change the cod
 For beginners we recommend taking your first steps with `nano`. You can use it on PACE like this:
 
 ```
-student@atl1-1-02-003-19-2:~> module load nano
-student@atl1-1-02-003-19-2:~> nano dgemm-optimized.c
+student@atl1-1-02-003-19-2:Homework1> module load nano
+student@atl1-1-02-003-19-2:Homework1> nano dgemm-optimized.c
 ```
 Use `Ctrl+X` to exit.
 
 For a more complete code editor try _vim_ which is loaded by default:
 ```
-student@login-ice-1:~/HW1> vim dgemm-optimized.c
+student@atl1-1-02-003-19-2:Homework1> vim dgemm-optimized.c
 ```
 Use `Esc` and `:q` to exit. (`:q!` if you want to discard changes). Try out the [interactive vim tutorial](https://www.openvim.com/) to learn more.
 
@@ -189,9 +190,9 @@ On Pace ICE, we use any Dual Xeon Gold 6226 processor (see all the resources her
 The reference machine is Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz (turbo boost is disabled). The manual is here:https://www.intel.com/content/www/us/en/products/sku/193957/intel-xeon-gold-6226-processor-19-25m-cache-2-70-ghz/specifications.html
 there are two [VPUs](https://cvw.cac.cornell.edu/vector/hardware/vector-processing-unit#:~:text=Vector%20processing%20units%20(VPUs)%20perform%20the%20actual,are%20equipped%20with%20two%20VPUs%20per%20core) per core, each with 512-bit vector width, so 8 double-precision (64-bit) elements can be processed in parallel. Each VPU has FMA units.
 
-You can learn more about the cpu by running the following command on PACE:
+You can learn more about the cpu by running the following command on PACE from a compute node:
 ```
-student@login-ice-1:~> lscpu
+student@atl1-1-02-003-19-2:~> lscpu
 ```
 
 

@@ -5,17 +5,26 @@ import subprocess
 import argparse
 import matplotlib.pyplot as plt
 
-def draw_and_save_plot(x, y, x_label, y_label, plot_title, file_name):
-    plt.figure(figsize=(8, 5))
-    plt.plot(x, y, marker='s', color='green')
+def draw_and_save_plot(x, y_series_dict, x_label, y_label, plot_title, file_name):
+    plt.figure(figsize=(10, 6))
+    
+    colors = ['green', 'blue', 'red', 'orange', 'purple', 'brown', 'pink', 'gray']
+    markers = ['s', 'o', '^', 'v', 'd', 'x', '+', '*']
+    
+    for i, (series_name, y_data) in enumerate(y_series_dict.items()):
+        color = colors[i % len(colors)]
+        marker = markers[i % len(markers)]
+        plt.plot(x, y_data, marker=marker, color=color, label=series_name, linewidth=2, markersize=6)
 
     plt.grid(True, linestyle='--', alpha=0.6)
-
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(plot_title)
-
+    plt.legend()
+    
+    plt.tight_layout()
     plt.savefig(f"plot/{file_name}", dpi=300, bbox_inches='tight')
+    plt.close()
 
 def check_correctness(A, B, C):
     eps = np.finfo(np.float64).eps
@@ -55,7 +64,7 @@ def run_dgemm(kernel, A, B, num_threads=1, max_time=1, trials_max=10000):
     return measurements
 
 
-def benchmark_by_size(max_speed_gflops, naive_kernel_name, optimized_kernel_name, num_threads=12):
+def benchmark_by_size(max_speed_gflops, naive_kernel_name, kernel_list, num_threads=12):
     test_sizes = [
         31,
         32,
@@ -84,89 +93,108 @@ def benchmark_by_size(max_speed_gflops, naive_kernel_name, optimized_kernel_name
         768,
         769,
     ]
-    measured_kernel_gflops = []
+    
+    all_kernel_gflops = {}
+    
+    for kernel_name in kernel_list:
+        print(f"\n=== Benchmarking kernel: {kernel_name} ===")
+        measured_kernel_gflops = []
 
-    for n in test_sizes:
-        # Double precision float
-        # Ref: https://numpy.org/doc/stable/user/basics.types.html#relationship-between-numpy-data-types-and-c-data-types
-        input_data_A = np.random.rand(n, n).astype(np.float64)
-        input_data_B = np.random.rand(n, n).astype(np.float64)
+        for n in test_sizes:
+            # Double precision float
+            # Ref: https://numpy.org/doc/stable/user/basics.types.html#relationship-between-numpy-data-types-and-c-data-types
+            input_data_A = np.random.rand(n, n).astype(np.float64)
+            input_data_B = np.random.rand(n, n).astype(np.float64)
 
-        baseline_result = run_dgemm(
-            naive_kernel_name, input_data_A, input_data_B, num_threads=1
-        )
-        optimized_result = run_dgemm(
-            optimized_kernel_name, input_data_A, input_data_B, num_threads=num_threads
-        )
-        check_correctness(input_data_A, input_data_B, optimized_result["C"])
+            baseline_result = run_dgemm(
+                naive_kernel_name, input_data_A, input_data_B, num_threads=1
+            )
+            optimized_result = run_dgemm(
+                kernel_name, input_data_A, input_data_B, num_threads=num_threads
+            )
+            check_correctness(input_data_A, input_data_B, optimized_result["C"])
 
-        optimized_gflops = 2.0e-9 * n * n * n / (optimized_result["time"] * 1.0e-9)
-        optimized_peak_perc = (optimized_gflops / max_speed_gflops) * 100
+            optimized_gflops = 2.0e-9 * n * n * n / (optimized_result["time"] * 1.0e-9)
+            optimized_peak_perc = (optimized_gflops / max_speed_gflops) * 100
 
-        print(
-            f"Size: {n:8d}   Gflops: {optimized_gflops:8.2f}   %peak: {optimized_peak_perc:8.4f}%   speedup: {baseline_result['time'] / optimized_result['time']:8.2f}x"
-        )
-        
-        measured_kernel_gflops.append(optimized_gflops)
+            print(
+                f"Size: {n:8d}   Gflops: {optimized_gflops:8.2f}   %peak: {optimized_peak_perc:8.4f}%   speedup: {baseline_result['time'] / optimized_result['time']:8.2f}x"
+            )
+            
+            measured_kernel_gflops.append(optimized_gflops)
 
-    draw_and_save_plot(test_sizes, measured_kernel_gflops, "Matrix Size", "GFLOP/s", "GFLOP/s for MatMul on matrices of varying sizes", "single_thread.png")
+        all_kernel_gflops[kernel_name] = measured_kernel_gflops
 
-def benchmark_strong_scaling(optimized_kernel_name, matrix_size, max_num_threads):
+    draw_and_save_plot(test_sizes, all_kernel_gflops, "Matrix Size", "GFLOP/s", "GFLOP/s for MatMul on matrices of varying sizes", "benchmark_comparison.png")
+
+def benchmark_strong_scaling(kernel_list, matrix_size, max_num_threads):
     thread_counts = [i for i in range(1,max_num_threads + 1)]
-    speedup = []
-
+    
     input_data_A = np.random.rand(matrix_size, matrix_size).astype(np.float64)
     input_data_B = np.random.rand(matrix_size, matrix_size).astype(np.float64)
-
-    # Single thread performance
-    single_thread_result = run_dgemm(
-        optimized_kernel_name, input_data_A, input_data_B, num_threads=1
-    )
     
-    for thread_count in thread_counts:
-        result = run_dgemm(
-            optimized_kernel_name, input_data_A, input_data_B, num_threads=thread_count
+    all_kernel_speedups = {}
+    
+    for kernel_name in kernel_list:
+        print(f"\n=== Strong Scaling for kernel: {kernel_name} ===")
+        speedup = []
+
+        # Single thread performance
+        single_thread_result = run_dgemm(
+            kernel_name, input_data_A, input_data_B, num_threads=1
         )
-        check_correctness(input_data_A, input_data_B, result["C"])
-        speedup.append(single_thread_result["time"]/result["time"])
-        print(
-            f"Strong Scaling Threads: {thread_count:8d}   Size: {matrix_size:8d}   Speedup: {single_thread_result['time'] / result['time']:8.2f}x"
-        )
+        
+        for thread_count in thread_counts:
+            result = run_dgemm(
+                kernel_name, input_data_A, input_data_B, num_threads=thread_count
+            )
+            check_correctness(input_data_A, input_data_B, result["C"])
+            speedup.append(single_thread_result["time"]/result["time"])
+            print(
+                f"Strong Scaling Threads: {thread_count:8d}   Size: {matrix_size:8d}   Speedup: {single_thread_result['time'] / result['time']:8.2f}x"
+            )
 
-    draw_and_save_plot(thread_counts, speedup, "Number of threads", "Speedup over single thread", f"Strong Scaling Plot for {matrix_size}x{matrix_size} MatMul", "strong_scaling.png")
+        all_kernel_speedups[kernel_name] = speedup
+
+    draw_and_save_plot(thread_counts, all_kernel_speedups, "Number of threads", "Speedup over single thread", f"Strong Scaling Plot for {matrix_size}x{matrix_size} MatMul", "strong_scaling_comparison.png")
 
 
-def benchmark_weak_scaling(optimized_kernel_name, first_matrix_size, max_num_threads):
-    speedup = []
+def benchmark_weak_scaling(kernel_list, first_matrix_size, max_num_threads):
+    all_kernel_speedups = {}
+    
+    for kernel_name in kernel_list:
+        print(f"\n=== Weak Scaling for kernel: {kernel_name} ===")
+        speedup = []
+        first_time = None
 
-    first_time = None
+        for thread_count in range(1, max_num_threads + 1):
+            test_size = np.ceil(first_matrix_size * np.sqrt(thread_count)).astype(int)
+            input_data_A = np.random.rand(test_size, test_size).astype(np.float64)
+            input_data_B = np.random.rand(test_size, test_size).astype(np.float64)
 
-    for thread_count in range(1, max_num_threads + 1):
-        test_size = np.ceil(first_matrix_size * np.sqrt(thread_count)).astype(int)
-        input_data_A = np.random.rand(test_size, test_size).astype(np.float64)
-        input_data_B = np.random.rand(test_size, test_size).astype(np.float64)
+            result = run_dgemm(
+                kernel_name, input_data_A, input_data_B, num_threads=thread_count
+            )
+            check_correctness(input_data_A, input_data_B, result["C"])
 
-        result = run_dgemm(
-            optimized_kernel_name, input_data_A, input_data_B, num_threads=thread_count
-        )
-        check_correctness(input_data_A, input_data_B, result["C"])
+            if first_time is None:
+                first_time = result["time"]
 
-        if first_time is None:
-            first_time = result["time"]
+            print(
+                f"Weak Scaling Threads: {thread_count:8d}   Size: {test_size:8d}   Speedup: {first_time / result['time']:8.2f}x"
+            )
+                
+            speedup.append(first_time/result["time"])
 
-        print(
-            f"Weak Scaling Threads: {thread_count:8d}   Size: {test_size:8d}   Speedup: {first_time / result['time']:8.2f}x"
-        )
-            
-        speedup.append(first_time/result["time"])
+        all_kernel_speedups[kernel_name] = speedup
 
     draw_and_save_plot(
         [i for i in range(1, max_num_threads + 1)],
-        speedup, 
+        all_kernel_speedups, 
         "Number of threads", 
         "Speedup over single thread", 
         f"Weak Scaling Plot for MatMul matrices {first_matrix_size}-{np.ceil(first_matrix_size * np.sqrt(max_num_threads)).astype(int)}", 
-        "weak_scaling.png"
+        "weak_scaling_comparison.png"
     )
 
 
