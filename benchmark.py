@@ -172,17 +172,9 @@ def benchmark_weak_scaling(optimized_kernel_name, first_matrix_size, max_num_thr
 
 
 if __name__ == "__main__":
-    # Clean up and create directories
-    if os.path.exists("input"):
-        shutil.rmtree("input")
-    if os.path.exists("output"):
-        shutil.rmtree("output")
-    if os.path.exists("plot"):
-        shutil.rmtree("plot")
-
-    os.makedirs("input")
-    os.makedirs("output")
-    os.makedirs("plot")
+    os.makedirs("input", exist_ok=True)
+    os.makedirs("output", exist_ok=True)
+    os.makedirs("plot", exist_ok=True)
 
     # The reference machine is Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz (turbo boost is disabled)
     # Manual: https://www.intel.com/content/www/us/en/products/sku/193957/intel-xeon-gold-6226-processor-19-25m-cache-2-70-ghz/specifications.html
@@ -198,7 +190,7 @@ if __name__ == "__main__":
     if "--help" in os.sys.argv:
         print("Usage: python benchmark.py [--help] [--benchmark] [--strong-scaling] [--weak-scaling]")
         print("  --help            : Show this help message and exit")
-        print("  --benchmark       : Run single-threaded benchmark over varying matrix sizes")
+        print("  --benchmark       : Run benchmark over varying matrix sizes")
         print("  --strong-scaling  : Run strong scaling benchmark on a fixed matrix size")
         print("  --weak-scaling    : Run weak scaling benchmark starting from a small matrix size")
         os.sys.exit(0)

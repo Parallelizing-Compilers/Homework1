@@ -151,11 +151,12 @@ Running this script will verify your implementation's correctness, reporting per
 
 Usage:
 ```
-Usage: python benchmark.py [--help] [--benchmark] [--strong-scaling] [--weak-scaling]
+python3 benchmark.py [--help] [--benchmark] [--strong-scaling] [--weak-scaling]
     --help            : Show this help message and exit
-    --benchmark       : Run single-threaded benchmark over varying matrix sizes
+    --benchmark       : Run benchmark over varying matrix sizes
     --strong-scaling  : Run strong scaling benchmark on a fixed matrix size
     --weak-scaling    : Run weak scaling benchmark starting from a small matrix size
+```
 
 
 ## Editing the Code
