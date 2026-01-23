@@ -95,15 +95,13 @@ Helpers
 
 This executes your pre-compiled binaries to measure performance, verify correctness, and generate scaling plots.
 
-* **dgemm-optimized.c**  - - -  **You may only modify this file.** 
+* **dgemm-optimized.c**  - - -  **Only this file and your report pdf will be graded.** 
 
 A simple blocked implementation of matrix multiply. It is your job to optimize the `square_dgemm()` function in this file.
 
 * **dgemm-naive.c** 
 
 For illustrative purposes, a naive implementation of matrix multiply using three nested loops.
-
-> Please **do not** modify any of the files besides _dgemm-optimized.c_
 
 
 ## Moving to a Compute Node
