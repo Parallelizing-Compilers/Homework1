@@ -119,7 +119,7 @@ def benchmark_by_size(max_speed_gflops, naive_kernel_name, kernel_list, num_thre
             optimized_peak_perc = (optimized_gflops / max_speed_gflops) * 100
 
             print(
-                f"{kernel_name:18s}: Size: {n:4d} GFLOPS: {optimized_gflops:5.0f} %peak: {optimized_peak_perc:4.0f}% speedup: {baseline_result['time'] / optimized_result['time']:5.1f}x"
+                f"{kernel_name:18s}: Size: {n:4d} GFLOPS: {optimized_gflops:5.2f} %peak: {optimized_peak_perc:4.2f}% speedup: {baseline_result['time'] / optimized_result['time']:5.2f}x"
             )
             
             all_kernel_gflops.setdefault(kernel_name, []).append(optimized_gflops)
@@ -150,7 +150,7 @@ def benchmark_strong_scaling(kernel_list, matrix_size, max_num_threads):
             check_correctness(input_data_A, input_data_B, result["C"])
             speedup.append(single_thread_result["time"]/result["time"])
             print(
-                f"{kernel_name:18s}: Threads: {thread_count:4d} Size: {matrix_size:4d} speedup: {single_thread_result['time'] / result['time']:5.1f}x"
+                f"{kernel_name:18s}: Threads: {thread_count:4d} Size: {matrix_size:4d} speedup: {single_thread_result['time'] / result['time']:5.2f}x"
             )
 
         all_kernel_speedups[kernel_name] = speedup
@@ -180,7 +180,7 @@ def benchmark_weak_scaling(kernel_list, first_matrix_size, max_num_threads):
                 first_time = result["time"]
 
             print(
-                f"{kernel_name:18s}: Threads: {thread_count:4d} Size: {test_size:4d} speedup: {first_time / result['time']:5.1f}x"
+                f"{kernel_name:18s}: Threads: {thread_count:4d} Size: {test_size:4d} speedup: {first_time / result['time']:5.2f}x"
             )
                 
             speedup.append(first_time/result["time"])
