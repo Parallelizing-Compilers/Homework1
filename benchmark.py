@@ -18,6 +18,10 @@ def draw_and_save_plot(x, y, x_label, y_label, plot_title, file_name):
 
     plt.savefig(f"plot/{file_name}", dpi=300, bbox_inches='tight')
 
+def check_correctness(A, B, C):
+    eps = np.finfo(np.float64).eps
+    n = A.shape[0]
+    assert np.linalg.norm(C - A @ B) < eps * n * np.linalg.norm(A) * np.linalg.norm(B), "Matrix multiplication result is incorrect!"
 
 def run_dgemm(kernel, A, B, num_threads=1, max_time=1, trials_max=10000):
     # Save input data
@@ -95,15 +99,13 @@ def benchmark_by_size(max_speed_gflops, naive_kernel_name, optimized_kernel_name
         optimized_result = run_dgemm(
             optimized_kernel_name, input_data_A, input_data_B, num_threads=num_threads
         )
-        assert np.allclose(
-            baseline_result["C"], optimized_result["C"]
-        ), "Results do not match!"
+        check_correctness(input_data_A, input_data_B, optimized_result["C"])
 
         optimized_gflops = 2.0e-9 * n * n * n / (optimized_result["time"] * 1.0e-9)
         optimized_peak_perc = (optimized_gflops / max_speed_gflops) * 100
 
         print(
-            f"Size: {n}    Gflops: {optimized_gflops:.2f}    %peak: {optimized_peak_perc:.6f}%    speedup: {baseline_result["time"] / optimized_result["time"]:.2f}x"
+            f"Size: {n}\tGflops: {optimized_gflops:.2f}\t%peak: {optimized_peak_perc:.6f}%\tspeedup: {baseline_result["time"] / optimized_result["time"]:.2f}x"
         )
         
         measured_kernel_gflops.append(optimized_gflops)
@@ -123,13 +125,14 @@ def benchmark_strong_scaling(optimized_kernel_name, matrix_size, max_num_threads
     )
     
     for thread_count in thread_counts:
-        multithread_result = run_dgemm(
+        result = run_dgemm(
             optimized_kernel_name, input_data_A, input_data_B, num_threads=thread_count
         )
-        assert np.allclose(
-            single_thread_result["C"], multithread_result["C"]
-        ), "Results do not match!"
-        speedup.append(single_thread_result["time"]/multithread_result["time"])
+        check_correctness(input_data_A, input_data_B, result["C"])
+        speedup.append(single_thread_result["time"]/result["time"])
+        print(
+            f"Strong Scaling Threads: {thread_count}\tSize: {matrix_size}\tSpeedup: {single_thread_result["time"] / result["time"]:.2f}x"
+        )
 
     draw_and_save_plot(thread_counts, speedup, "Number of threads", "Speedup over single thread", f"Strong Scaling Plot for {matrix_size}x{matrix_size} MatMul", "strong_scaling.png")
 
@@ -144,21 +147,19 @@ def benchmark_weak_scaling(optimized_kernel_name, first_matrix_size, max_num_thr
         input_data_A = np.random.rand(test_size, test_size).astype(np.float64)
         input_data_B = np.random.rand(test_size, test_size).astype(np.float64)
 
-        baseline_result = run_dgemm(
-            optimized_kernel_name, input_data_A, input_data_B, num_threads=1
-        )
-        optimized_result = run_dgemm(
+        result = run_dgemm(
             optimized_kernel_name, input_data_A, input_data_B, num_threads=thread_count
         )
-        assert np.allclose(
-            baseline_result["C"], optimized_result["C"]
-        ), "Results do not match!"
+        check_correctness(input_data_A, input_data_B, result["C"])
 
         if first_time is None:
-            first_time = baseline_result["time"]
+            first_time = result["time"]
 
+        print(
+            f"Weak Scaling Threads: {thread_count}\tSize: {test_size}\tSpeedup: {first_time / result["time"]:.2f}x"
+        )
             
-        speedup.append(first_time/optimized_result["time"])
+        speedup.append(first_time/result["time"])
 
     draw_and_save_plot(
         [i for i in range(1, max_num_threads)],
@@ -203,5 +204,5 @@ if __name__ == "__main__":
         benchmark_strong_scaling(optimized_kernel_name, matrix_size, max_num_threads)
 
     if "--weak-scaling" in os.sys.argv:
-        first_matrix_size = 64
+        first_matrix_size = 200
         benchmark_weak_scaling(optimized_kernel_name, first_matrix_size, max_num_threads)
