@@ -1,9 +1,8 @@
 import json
 import os
 import numpy as np
-import scipy
-import shutil
 import subprocess
+import argparse
 import matplotlib.pyplot as plt
 
 def draw_and_save_plot(x, y, x_label, y_label, plot_title, file_name):
@@ -187,22 +186,24 @@ if __name__ == "__main__":
     optimized_kernel_name = "dgemm-optimized"
 
     max_num_threads = 12
-
-    if "--help" in os.sys.argv:
-        print("Usage: python benchmark.py [--help] [--benchmark] [--strong-scaling] [--weak-scaling]")
-        print("  --help            : Show this help message and exit")
-        print("  --benchmark       : Run benchmark over varying matrix sizes")
-        print("  --strong-scaling  : Run strong scaling benchmark on a fixed matrix size")
-        print("  --weak-scaling    : Run weak scaling benchmark starting from a small matrix size")
-        os.sys.exit(0)
-
-    if "--benchmark" in os.sys.argv or len(os.sys.argv) == 1:
-        benchmark_by_size(max_speed_gflops, naive_kernel_name, optimized_kernel_name)
+    parser = argparse.ArgumentParser(description="Benchmark matrix multiplication kernels")
+    parser.add_argument("--benchmark", action="store_true", help="Run benchmark over varying matrix sizes")
+    parser.add_argument("--strong-scaling", action="store_true", help="Run strong scaling benchmark on a fixed matrix size")
+    parser.add_argument("--weak-scaling", action="store_true", help="Run weak scaling benchmark starting from a small matrix size")
+    parser.add_argument("--kernels", nargs='*', type=str, default=[optimized_kernel_name], help="versions to benchmark")
     
-    if "--strong-scaling" in os.sys.argv:
+    args = parser.parse_args()
+    
+    if not any([args.benchmark, args.strong_scaling, args.weak_scaling]):
+        args.benchmark = True
+    
+    if args.benchmark:
+        benchmark_by_size(max_speed_gflops, naive_kernel_name, args.kernels)
+    
+    if args.strong_scaling:
         matrix_size = 768
-        benchmark_strong_scaling(optimized_kernel_name, matrix_size, max_num_threads)
+        benchmark_strong_scaling(args.kernels, matrix_size, max_num_threads)
 
-    if "--weak-scaling" in os.sys.argv:
+    if args.weak_scaling:
         first_matrix_size = 222
-        benchmark_weak_scaling(optimized_kernel_name, first_matrix_size, max_num_threads)
+        benchmark_weak_scaling(args.kernels, first_matrix_size, max_num_threads)
