@@ -1,6 +1,6 @@
 # Homework 1: Optimizing Matrix Multiplication
 
-**Due Date:** Tuesday, February 6th at 11:59 PM PST
+**Due Date:** Tuesday, February 6th at 6:00 PM PST
 
 (Content adapted with permission from [CS267 Spring 2025: Optimizing Matrix Multiplication](https://sites.google.com/lbl.gov/cs267-spr2025/hw-1?authuser=0#h.p_wUx8PSDWAdpd))
 
