@@ -5,7 +5,8 @@ import subprocess
 import argparse
 import matplotlib.pyplot as plt
 
-def draw_and_save_plot(x, y_series_dict, x_label, y_label, plot_title, file_name):
+
+def draw_and_save_plot(x, y_series_dict, x_label, y_label, plot_title, file_name, log_x=False, log_y=False):
     plt.figure(figsize=(10, 6))
     
     colors = ['green', 'blue', 'red', 'orange', 'purple', 'brown', 'pink', 'gray']
@@ -21,6 +22,12 @@ def draw_and_save_plot(x, y_series_dict, x_label, y_label, plot_title, file_name
     plt.ylabel(y_label)
     plt.title(plot_title)
     plt.legend()
+    
+    # Apply logarithmic scales if requested
+    if log_x:
+        plt.xscale('log')
+    if log_y:
+        plt.yscale('log')
     
     plt.tight_layout()
     plt.savefig(f"plot/{file_name}", dpi=300, bbox_inches='tight')
@@ -132,7 +139,7 @@ def benchmark_by_size(max_speed_gflops, naive_kernel_name, kernel_list, num_thre
         geomean_perc =  np.exp(np.mean(np.log(np.array(all_kernel_gflops[kernel_name]) / max_speed_gflops))) * 100
         print(f"{kernel_name:18s}: {geomean_perc:5.2f}%")
 
-    draw_and_save_plot(test_sizes, all_kernel_gflops, "Matrix Size", "GFLOP/s", "GFLOP/s for MatMul on matrices of varying sizes", "benchmark_comparison.png")
+    draw_and_save_plot(test_sizes, all_kernel_gflops, "Matrix Size", "GFLOP/s", "GFLOP/s for MatMul on matrices of varying sizes", "benchmark_comparison.png", log_x=True)
 
 def benchmark_strong_scaling(kernel_list, matrix_size, max_num_threads):
     thread_counts = [i for i in range(1,max_num_threads + 1)]
@@ -163,7 +170,7 @@ def benchmark_strong_scaling(kernel_list, matrix_size, max_num_threads):
 
         all_kernel_speedups[kernel_name] = speedup
 
-    draw_and_save_plot(thread_counts, all_kernel_speedups, "Number of threads", "Speedup over single thread", f"Strong Scaling Plot for {matrix_size}x{matrix_size} MatMul", "strong_scaling_comparison.png")
+    draw_and_save_plot(thread_counts, all_kernel_speedups, "Number of threads", "Speedup over single thread", f"Strong Scaling Plot for {matrix_size}x{matrix_size} MatMul", "strong_scaling_comparison.png", log_x=True, log_y=True)
 
 
 def benchmark_weak_scaling(kernel_list, first_matrix_size, max_num_threads):
@@ -201,7 +208,8 @@ def benchmark_weak_scaling(kernel_list, first_matrix_size, max_num_threads):
         "Number of threads", 
         "Speedup over single thread", 
         f"Weak Scaling Plot for MatMul matrices {first_matrix_size}-{np.ceil(first_matrix_size * np.sqrt(max_num_threads)).astype(int)}", 
-        "weak_scaling_comparison.png"
+        "weak_scaling_comparison.png",
+        log_x=True, log_y=True
     )
 
 
