@@ -123,6 +123,13 @@ def benchmark_by_size(max_speed_gflops, naive_kernel_name, kernel_list, num_thre
             )
             
             all_kernel_gflops.setdefault(kernel_name, []).append(optimized_gflops)
+    
+    # Calculate and print geometric mean speedup
+    print("\n=== Geometric Mean Speedup ===")
+    for kernel_name in kernel_list:
+        speedups =  np.array(all_kernel_gflops[kernel_name]) / np.array(all_kernel_gflops[naive_kernel_name])
+        geomean_speedup = np.exp(np.mean(np.log(speedups)))
+        print(f"{kernel_name:18s}: {geomean_speedup:5.2f}x")
 
     draw_and_save_plot(test_sizes, all_kernel_gflops, "Matrix Size", "GFLOP/s", "GFLOP/s for MatMul on matrices of varying sizes", "benchmark_comparison.png")
 
