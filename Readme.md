@@ -108,7 +108,7 @@ For illustrative purposes, a naive implementation of matrix multiply using three
 
 Command to request an [interactive session](https://gatech.service-now.com/home?id=kb_article_view&sysparm_article=KB0042096#interactive-jobs): [We will be making use of Intel Xeon Gold 6226 processor]
 ```
-student@login-ice-1:~> salloc -N 1 -n 1 -c <no. of cores> -t <session-time> -C gold6226
+student@login-ice-1:~> salloc -N 1 -n <no. of cores> -t <session-time> -C gold6226
 student@atl1-1-02-003-19-2:~> 
 ```
 
@@ -123,7 +123,7 @@ We use a Makefile to simplify compilation.
 1. Load modules
 ```
 student@atl1-1-02-003-19-2:~> module load gcc
-student@atl1-1-02-003-19-2:~> module load anaconda3
+student@atl1-1-02-003-19-2:~> module load python/3.12.5
 ```
 
 2. Clean previous builds if any and then compile
@@ -137,6 +137,7 @@ This will generate two executables: dgemm-naive and dgemm-optimized.
 ```
 student@atl1-1-02-003-19-2:~> python -m venv hw1
 student@atl1-1-02-003-19-2:~> source hw1/bin/activate
+student@atl1-1-02-003-19-2:~> pip install -r requirements.txt
 ```
 
 ## Running the Code
@@ -235,17 +236,21 @@ We will grade your assignment by reviewing your write-up, analyzing the optimiza
 
 ## Submission Details
 
-1.  Ensure that your write-up is located in your source directory, next to **dgemm-optimized.c**. It should be named **cs6245_<gt_username>_hw1.pdf**.
-2.  Clean your build directory 
+1. Ensure that the final performance is measured on the compute node with 12 cores allocated. This is necessary because the value we have set for peak assumes that 12 cores are being used.
+    ```bash
+    student@login-ice-1:~> salloc -N 1 -n 12 -t <session-time> -C gold6226
+    ```
+2.  Ensure that your write-up is located in your source directory, next to **dgemm-optimized.c**. It should be named **cs6245_<gt_username>_hw1.pdf**.
+3.  Clean your build directory 
     ```
     make clean
     ```
     This second command will fail if the PDF is not present.
-3.  Create a compressed archive of your work:
+4.  Create a compressed archive of your work:
     ```
     tar -czvf cs6245_<gt_username>_hw1_submission.tar.gz dgemm-optimized.c cs6245_<gt_username>_hw1.pdf Makefile
     ```
-4.  Submit the .tar.gz file through Canvas
+5.  Submit the .tar.gz file through Canvas
 
 ## Write-up Details
 
