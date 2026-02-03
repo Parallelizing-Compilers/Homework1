@@ -73,11 +73,11 @@ benchmark.cpp  dgemm-naive.c      json.hpp  npy.hpp         Readme.md
 benchmark.py   dgemm-optimized.c  Makefile  pyproject.toml  requirements.txt
 ```
 
-There are ten files in the base repository. Their purposes are as follows:
+There are ten files in the base repository. Only `Makefile`, `dgemm-optimized.c`, and your report will be graded. Their purposes are as follows:
 
-* **Makefile**
+* **Makefile** - - - **This file will be graded.** 
 
-The build script that manages compiling your code.
+The build script that manages compiling your code. Don't do any fancy flags that insert vendor matmul routines please.
 
 * **benchmark.cpp**
 
@@ -95,7 +95,7 @@ Helpers
 
 This executes your pre-compiled binaries to measure performance, verify correctness, and generate scaling plots.
 
-* **dgemm-optimized.c**  - - -  **Only this file and your report pdf will be graded.** 
+* **dgemm-optimized.c**  - - -  **This file will be graded.** 
 
 A simple blocked implementation of matrix multiply. It is your job to optimize the `square_dgemm()` function in this file.
 
@@ -264,8 +264,8 @@ We will grade your assignment by reviewing your write-up, analyzing the optimiza
 
 * **Your grade will depend on two factors:**
     * Performance of correct code sustained on the Intel Xeon Gold 6226. I may lower these buckets but won't raise them:
-        * Geomean 30% percent peak (60 points)
-        * Geomean 15% percent peak (50 points) 
+        * Geomean 20% percent peak (60 points)
+        * Geomean 10% percent peak (50 points) 
         * Geomean 5% percent peak (40 points) 
         * Geomean 2% percent peak (20 points)
         * Geomean 1% percent peak (10 points)
