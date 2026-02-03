@@ -264,11 +264,12 @@ We will grade your assignment by reviewing your write-up, analyzing the optimiza
 
 * **Your grade will depend on two factors:**
     * Performance of correct code sustained on the Intel Xeon Gold 6226. I may lower these buckets but won't raise them:
-        * Geomean 20% percent peak (60 points)
-        * Geomean 10% percent peak (50 points) 
-        * Geomean 5% percent peak (40 points) 
-        * Geomean 2% percent peak (20 points)
         * Geomean 1% percent peak (10 points)
+        * Geomean 2% percent peak (20 points)
+        * Geomean 5% percent peak (40 points)
+        * Geomean 10% percent peak (50 points)
+        * Geomean 20% percent peak (60 points)
+        * Geomean 30% percent peak (60 points + 5pt extra credit)
     * Explanations of the performance features you observed (including what didn't work) (40 points)
     
 
